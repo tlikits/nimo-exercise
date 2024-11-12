@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  nimo-exercise
+Transform:
+- AWS::Serverless-2016-10-31
+
+Resources:
+  getCoinCurrentPrice:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/get-coin-current-price.handler
+      Runtime: nodejs20.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Get current price of a specific cryptocurrency that indicate on path parameter and receive an email about the result
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /coin/{id}/current
+            Method: GET
+
+  getSearchHistory:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/get-search-history.handler
+      Runtime: nodejs20.x
+      Architectures:
+      - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Get cryptocurrency search history
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /history
+            Method: GET
+
+Outputs:
+  WebEndpoint:
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON
