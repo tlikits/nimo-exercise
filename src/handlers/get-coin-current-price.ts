@@ -2,17 +2,18 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { GetCoinCurrentPriceResult } from '../interfaces/results';
 import { returnNotFound, returnSuccess } from '../lib/utils';
 import { putSearchHistory } from '../services/search-history';
+import { getCoinDataById } from '../services/coin-gecko';
 
 const MOCKED_USERID = 'tlikits';
 
-function getCoinCurrentPriceHandler(id: string): GetCoinCurrentPriceResult {
-  // TODO: implement the logic to retrieve data from coingecko
+async function getCoinCurrentPriceHandler(id: string): Promise<GetCoinCurrentPriceResult> {
+  const coinData = await getCoinDataById(id);
   return {
     id,
     prices: {
-      aud: 100,
-      usd: 100,
-    }
+      aud: coinData.market_data.current_price.aud,
+      usd: coinData.market_data.current_price.usd,
+    },
   };
 }
 
@@ -25,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     return returnNotFound('Please specify coin id');
   }
 
-  const result = getCoinCurrentPriceHandler(coinId);
+  const result = await getCoinCurrentPriceHandler(coinId);
   await putSearchHistory(userId, coinId);
   return returnSuccess(result);
 };
