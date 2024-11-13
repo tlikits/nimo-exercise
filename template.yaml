@@ -18,6 +18,16 @@ Resources:
       Policies:
       - DynamoDBCrudPolicy:
           TableName: !Ref SearchHistoryTable
+      - SESCrudPolicy:
+          IdentityName: !Ref SESEmailIdentity
+      - Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'ses:SendEmail'
+              - 'ses:SendRawEmail'
+            Resource: '*'
+
       Environment:
         Variables:
           SEARCH_HISTORY_TABLE: !Ref SearchHistoryTable
@@ -70,6 +80,16 @@ Resources:
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true
+
+  SESEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "thanchanok.lks@gmail.com"
+
+  SESEmailIdentity2:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "thanchanok.likitsinsopon@gmail.com"
 
 Outputs:
   WebEndpoint:
