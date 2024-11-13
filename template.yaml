@@ -15,6 +15,12 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: Get current price of a specific cryptocurrency that indicate on path parameter and receive an email about the result
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SearchHistoryTable
+      Environment:
+        Variables:
+          SEARCH_HISTORY_TABLE: !Ref SearchHistoryTable
       Events:
         Api:
           Type: Api
@@ -32,12 +38,38 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: Get cryptocurrency search history
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: !Ref SearchHistoryTable
+      Environment:
+        Variables:
+          SEARCH_HISTORY_TABLE: !Ref SearchHistoryTable
       Events:
         Api:
           Type: Api
           Properties:
             Path: /history
             Method: GET
+
+  SearchHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+      TimeToLiveSpecification:
+        AttributeName: "ttl"
+        Enabled: true
 
 Outputs:
   WebEndpoint:
