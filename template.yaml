@@ -197,6 +197,11 @@ Resources:
     Properties:
       EmailIdentity: "thanchanok.likitsinsopon@gmail.com"
 
+  SESDomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: 'tlikits.com'
+
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage
