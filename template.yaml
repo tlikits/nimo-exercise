@@ -37,7 +37,6 @@ Resources:
               - 'ses:SendEmail'
               - 'ses:SendRawEmail'
             Resource: '*'
-
       Environment:
         Variables:
           SEARCH_HISTORY_TABLE: !Ref SearchHistoryTable
@@ -107,32 +106,28 @@ Resources:
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: pk # TODO: change to userId
+        - AttributeName: userId
           AttributeType: S
-        - AttributeName: sk # TODO: change to coinId
+        - AttributeName: coinId
           AttributeType: S
         - AttributeName: timestamp
           AttributeType: S
-
       KeySchema:
-        - AttributeName: pk # TODO: change to userId
+        - AttributeName: userId
           KeyType: HASH
-        - AttributeName: sk # TODO: change to coinId
+        - AttributeName: coinId
           KeyType: RANGE
-
       LocalSecondaryIndexes:
         - IndexName: userId-timestamp-index
           KeySchema:
-            - AttributeName: pk # TODO: change to userId
+            - AttributeName: userId
               KeyType: HASH
             - AttributeName: timestamp
               KeyType: RANGE
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - sk # TODO: change to coinId
-
-
+              - coinId
       TimeToLiveSpecification:
         AttributeName: "ttl"
         Enabled: true

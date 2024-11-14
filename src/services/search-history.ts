@@ -33,9 +33,9 @@ export async function querySearchHistory(userId: string, nextToken?: string): Pr
         TableName: TABLE_NAME,
         IndexName: 'userId-timestamp-index',
         ScanIndexForward: false,
-        KeyConditionExpression: 'pk = :pk',
+        KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
-            ':pk': {
+            ':userId': {
                 S: userId,
             },
         },
@@ -55,8 +55,8 @@ export async function querySearchHistory(userId: string, nextToken?: string): Pr
 function buildSearchHistoryItem(userId: string, coinId: string): SearchHistoryDynamoDbItem {
     const now = new Date();
     return {
-        pk: userId,
-        sk: coinId,
+        userId,
+        coinId,
         timestamp: now.toISOString(),
         ttl: getSearchHistoryItemTtl(now),
     };
