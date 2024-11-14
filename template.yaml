@@ -5,7 +5,17 @@ Transform:
 - AWS::Serverless-2016-10-31
 
 Resources:
-  getCoinCurrentPrice:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
+            IdentitySource: "method.request.header.Authorization"  # Auth token source
+
+  GetCoinCurrentPrice:
     Type: AWS::Serverless::Function
     Properties:
       Handler: dist/handlers/get-coin-current-price.handler
@@ -35,10 +45,13 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
             Path: /coin/{id}/current
             Method: GET
 
-  getSearchHistory:
+  GetSearchHistory:
     Type: AWS::Serverless::Function
     Properties:
       Handler: dist/handlers/get-search-history.handler
@@ -58,8 +71,36 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGateway
+            Auth:
+              Authorizer: CognitoAuthorizer
             Path: /history
             Method: GET
+
+  CognitoLoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: cognito-login.handler
+      Runtime: nodejs20.x
+      Architectures:
+      - x86_64
+      CodeUri: ./dist/handlers
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt CognitoLambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoUserPool
+          APP_CLIENT_ID: !Ref CognitoUserPoolClient
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        CognitoLoginApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /login
+            Method: POST
 
   SearchHistoryTable:
     Type: AWS::DynamoDB::Table
@@ -96,6 +137,61 @@ Resources:
         AttributeName: "ttl"
         Enabled: true
 
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: MyAppClient
+      UserPoolId: !Ref CognitoUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_CUSTOM_AUTH
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      RefreshTokenValidity: 30
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+
+
+  CognitoLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CognitoAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:InitiateAuth
+                  - cognito-idp:AdminInitiateAuth
+                Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPool}"
+
   SESEmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
@@ -109,7 +205,7 @@ Resources:
 Outputs:
   WebEndpoint:
     Description: API Gateway endpoint URL for Prod stage
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGateway.RestApiId}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 
 Globals:
   Function:

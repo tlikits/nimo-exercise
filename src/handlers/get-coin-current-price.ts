@@ -5,7 +5,6 @@ import { putSearchHistory } from '../services/search-history';
 import { getCoinDataById } from '../services/coin-gecko';
 import { sendEmail } from '../services/ses';
 
-const MOCKED_USER_ID = 'tlikits';
 const MOCKED_USER_EMAIL = 'thanchanok.likitsinsopon@gmail.com';
 
 async function getCoinCurrentPriceHandler(id: string): Promise<GetCoinCurrentPriceResult> {
@@ -35,7 +34,7 @@ async function sendEmailNotification(result: GetCoinCurrentPriceResult): Promise
 export const handler: APIGatewayProxyHandler = async (event) => {
   const pathParameters  = event.pathParameters ?? {};
   const coinId = pathParameters['id'];
-  const userId = MOCKED_USER_ID; // TODO: retrieve user id
+  const userId = event.requestContext.authorizer?.claims.email;
 
   if (!coinId) {
     return returnNotFound('Please specify coin id');
