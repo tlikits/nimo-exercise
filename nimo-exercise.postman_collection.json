@@ -1,0 +1,362 @@
+{
+	"info": {
+		"_postman_id": "705a4f6a-ef82-40f7-889e-760860cf2876",
+		"name": "nimo-exercise",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "642768",
+		"_collection_link": "https://grey-robot-9313.postman.co/workspace/Blurryduck~6fa61fd7-fca9-4b7e-8017-3cb1fb7f8108/collection/642768-705a4f6a-ef82-40f7-889e-760860cf2876?action=share&source=collection_link&creator=642768"
+	},
+	"item": [
+		{
+			"name": "Coins List (ID Map)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseData = pm.response.json();",
+							"const ids = responseData.map(item => item.id).splice(50);",
+							"",
+							"pm.collectionVariables.set(\"COIN_IDS\", ids);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-cg-demo-api-key",
+						"value": "CG-3ekTsGyijFTZyn1Qv1ZwJBvB",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://api.coingecko.com/api/v3/coins/list",
+					"protocol": "https",
+					"host": [
+						"api",
+						"coingecko",
+						"com"
+					],
+					"path": [
+						"api",
+						"v3",
+						"coins",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseData = pm.response.json();",
+							"if (responseData.idToken) {",
+							"    pm.environment.set(\"ACCESS_TOKEN\", responseData.idToken);",
+							"} ",
+							"",
+							"// Optional test to verify accessToken is in the response",
+							"pm.test(\"idToken is present in response\", function () {",
+							"    pm.expect(responseData).to.have.property(\"idToken\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"thanchanok.likitsinsopon@gmail.com\",\n    \"password\": \"Boon@1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_GATEWAY_ENDPOINT}}/login",
+					"host": [
+						"{{API_GATEWAY_ENDPOINT}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign up",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseData = pm.response.json();",
+							"if (responseData.idToken) {",
+							"    pm.environment.set(\"ACCESS_TOKEN\", responseData.idToken);",
+							"} ",
+							"",
+							"// Optional test to verify accessToken is in the response",
+							"pm.test(\"idToken is present in response\", function () {",
+							"    pm.expect(responseData).to.have.property(\"idToken\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "{{API_KEY}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"thanchanok.lks@gmail.com\",\n    \"temporaryPassword\": \"Boon@1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_GATEWAY_ENDPOINT}}/signup",
+					"host": [
+						"{{API_GATEWAY_ENDPOINT}}"
+					],
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Coin Current Price",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJraWQiOiJqYXduRDRYZDBBR0paaWlPVEUwcEtodjRDZFpaWGp1dUhDem1PeUVXbWhRPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI3OTRlYTRjOC1iMGMxLTcwMmMtOGViZS1hMTExZjY3ZDQyMzciLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGhlYXN0LTIuYW1hem9uYXdzLmNvbVwvYXAtc291dGhlYXN0LTJfVG5icHlxV1ROIiwiY2xpZW50X2lkIjoiMml2ZjI0OGQ0azJ1ZWtiOTRzZ2htNHNrdHAiLCJvcmlnaW5fanRpIjoiM2Q4Zjg5Y2UtZGI1Mi00MzYzLWExMDEtZmYyZWMxMjdmNjFiIiwiZXZlbnRfaWQiOiIzNGQ5NDIwMC01NWM0LTQxMmEtYjk2OS1hMWMwMDY3YzRjMTYiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJzY29wZSI6ImF3cy5jb2duaXRvLnNpZ25pbi51c2VyLmFkbWluIiwiYXV0aF90aW1lIjoxNzMxNTU1ODc2LCJleHAiOjE3MzE1NTk0NzYsImlhdCI6MTczMTU1NTg3NiwianRpIjoiZWJlYjhlZTYtMWNmMS00OWFiLTlmNjUtOTk0ZGRmZDIzMzczIiwidXNlcm5hbWUiOiI3OTRlYTRjOC1iMGMxLTcwMmMtOGViZS1hMTExZjY3ZDQyMzcifQ.PQ43eA8gtIxXbN7O54AJbfvF-WdfI55cNl3rLGUHGp8vXtVpTcvZ0DextAQOuJ17_MXYj-In1eVnlEw5mX29BxXUBaytiLP-a2nY_tAWMeoXS0Nc2YgRyS4SpZ85pIBZy92nHvY42vgGgadpT6Tef-jLeUD7mfyLgdviZRNxteRx3ZGu-5WqR3yOv3_9jdRPm87BkSVvKFe6SozvZgG-2KnZpFN2-Pr8Qadux2Fyx4Bh140xj40QsltomifwKsq7jryVXiWxmqCUorE7M85Sn8lLpazIGSIHoSy8bmjUWJNVxp1D6uwRy8RhPurZaDT-PAacG6c0U7qeN1s1vKKIvg",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{API_GATEWAY_ENDPOINT}}/coin/dogecoin/current",
+					"host": [
+						"{{API_GATEWAY_ENDPOINT}}"
+					],
+					"path": [
+						"coin",
+						"dogecoin",
+						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Search History",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseData = pm.response.json();",
+							"if (responseData.nextToken) {",
+							"    pm.environment.set(\"NEXT_TOKEN\", encodeURI(responseData.nextToken));",
+							"} else {",
+							"    pm.environment.unset(\"NEXT_TOKEN\");",
+							"}",
+							"",
+							"",
+							"// Define the visualization template in HTML",
+							"let htmlContent = `",
+							"    <style>",
+							"        #container { padding: 12px; }",
+							"        table { width: 100%; border-collapse: collapse;  }",
+							"        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }",
+							"        th { background-color: #f2f2f2; }",
+							"        caption { font-size: 1.5em; margin-bottom: 10px; font-weight: bold; }",
+							"    </style>",
+							"    <div id=\"container\">",
+							"        <table>",
+							"            <caption>Cryptocurrency Items</caption>",
+							"            <thead>",
+							"                <tr>",
+							"                    <th>Index</th>",
+							"                    <th>Coin ID</th>",
+							"                    <th>Timestamp</th>",
+							"                </tr>",
+							"            </thead>",
+							"            <tbody>",
+							"`;",
+							"",
+							"// Add each item as a table row",
+							"responseData.items.forEach((item, idx) => {",
+							"    htmlContent += `",
+							"        <tr>",
+							"            <td>${idx}</td>",
+							"            <td>${item.coinId}</td>",
+							"            <td>${item.timestamp}</td>",
+							"        </tr>",
+							"    `;",
+							"});",
+							"",
+							"// Close the table and add nextToken display",
+							"htmlContent += `",
+							"            </tbody>",
+							"        </table>",
+							"        <div style=\"margin-top: 20px; font-weight: bold;\">Next Token:</div>",
+							"        <div style=\"white-space: pre-wrap;\">${responseData.nextToken}</div>",
+							"    </div>",
+							"`;",
+							"",
+							"// Visualize the HTML content",
+							"pm.visualizer.set(htmlContent);",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const nextToken = pm.environment.get(\"NEXT_TOKEN\");",
+							"",
+							"if (!nextToken){",
+							"    pm.environment.set(\"NEXT_TOKEN\", \"\")",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{API_GATEWAY_ENDPOINT}}/history?nextToken={{NEXT_TOKEN}}",
+					"host": [
+						"{{API_GATEWAY_ENDPOINT}}"
+					],
+					"path": [
+						"history"
+					],
+					"query": [
+						{
+							"key": "nextToken",
+							"value": "{{NEXT_TOKEN}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "API_GATEWAY_ENDPOINT",
+			"value": "https://uike51w7y8.execute-api.ap-southeast-2.amazonaws.com/Prod",
+			"type": "string"
+		},
+		{
+			"key": "COIN_IDS",
+			"value": ""
+		},
+		{
+			"key": "COIN_ID",
+			"value": ""
+		},
+		{
+			"key": "API_KEY",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
