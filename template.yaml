@@ -211,3 +211,9 @@ Globals:
   Function:
     LoggingConfig:
       LogFormat: JSON
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'content-type, authorization, accept'"
+      AllowOrigin: "'*'"
+      AllowCredentials: "'true'"
