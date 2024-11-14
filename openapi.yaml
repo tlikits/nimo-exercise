@@ -27,6 +27,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/LoginResult"
 
+  /signup:
+    post:
+      summary: Sign up new user
+      operationId: signup
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Credential Management
+      requestBody:
+        description: Email and temporarily password of new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupInput"
+      responses:
+        200:
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageObject"
+
+
   /history:
     get:
       summary: Get search history of the current user
@@ -54,9 +78,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/responses/UnauthorizedError'
-
-
-
 
   /coin/{coinId}/current:
     get:
@@ -95,6 +116,11 @@ components:
       in: header
       description: >-
         Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+
   schemas:
     SearchHistoryItem:
       required:
@@ -126,6 +152,16 @@ components:
           type: string
         prices:
           $ref: "#/components/schemas/CryptocurrencyPrices"
+    SignupInput:
+      required:
+        - email
+        - temporaryPassword
+      properties:
+        email:
+          type: string
+        temporaryPassword:
+          type: string
+
     UsernamePasswordCredential:
       required:
         - username
