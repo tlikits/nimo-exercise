@@ -25,7 +25,7 @@ export async function putSearchHistory(userId: string, coinId: string): Promise<
         Item: marshalledItem,
     };
     const command = new PutItemCommand(input);
-    const response = await client.send(command);
+    await client.send(command);
 }
 
 export async function querySearchHistory(userId: string, nextToken?: string): Promise<SearchHistoryQuery> {
