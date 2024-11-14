@@ -6,7 +6,6 @@ const client = new DynamoDBClient();
 const TABLE_NAME = process.env.SEARCH_HISTORY_TABLE ?? '';
 
 interface SearchHistoryItem {
-    userId: string;
     coinId: string;
     timestamp: string;
 }
@@ -41,10 +40,13 @@ export async function querySearchHistory(userId: string, nextToken?: string): Pr
         },
         ConsistentRead: true,
         Limit: 20,
-        // ExclusiveStartKey: JSON.parse(nextToken) ?? undefined,
+        ExclusiveStartKey: nextToken ? JSON.parse(nextToken) : undefined,
     });
     const response = await client.send(command);
-    const items = response.Items?.map(item => unmarshall(item) as SearchHistoryItem) ?? [];
+    const responseItems = response.Items ?? []
+    const items = responseItems
+        .map(item => unmarshall(item))
+        .map(item => ({ coinId: item.coinId, timestamp: item.timestamp }));
     const newNextToken = response.LastEvaluatedKey ? JSON.stringify(response.LastEvaluatedKey) : null;
     return {
         items,
