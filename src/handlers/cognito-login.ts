@@ -1,5 +1,6 @@
 import { CognitoIdentityProviderClient, InitiateAuthCommand, InitiateAuthCommandOutput, RespondToAuthChallengeCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { APIGatewayProxyHandler } from "aws-lambda";
+import { returnClientError, returnSuccess } from '../lib/utils';
 
 const client = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
 
@@ -20,10 +21,7 @@ async function cognitoInitiateAuth(username: string, password: string): Promise<
 // NOTE: temporarily logic for bypassing new password required workflow
 export const handler: APIGatewayProxyHandler = async (event) => {
     if (!event.body) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ message: 'Login failed', error: 'No credential provided' }),
-        };
+        return returnClientError('Login failed', 'No credential provided');
     }
     const { username, password } = JSON.parse(event.body);
 
@@ -43,15 +41,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
             response = await cognitoInitiateAuth(username, password);
         }
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                accessToken: response.AuthenticationResult?.AccessToken,
-                idToken: response.AuthenticationResult?.IdToken,
-                refreshToken: response.AuthenticationResult?.RefreshToken,
-                expiresIn: response.AuthenticationResult?.ExpiresIn,
-            }),
-        };
+        return returnSuccess({
+            accessToken: response.AuthenticationResult?.AccessToken,
+            idToken: response.AuthenticationResult?.IdToken,
+            refreshToken: response.AuthenticationResult?.RefreshToken,
+            expiresIn: response.AuthenticationResult?.ExpiresIn,
+        })
     } catch (error: any) {
         return {
             statusCode: 400,

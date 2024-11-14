@@ -9,6 +9,18 @@ export function returnSuccess(body: object) {
   return buildResult(200, body);
 }
 
+export function returnCreateSuccess(body: object) {
+  return buildResult(201, body);
+}
+
+export function returnClientError(message: string, errorMessage: string) {
+  return buildResult(400, { message, error: errorMessage });
+}
+
 export function returnNotFound(message: string) {
   return buildResult(404, { message });
+}
+
+export function returnServerError(message: string, error: Error) {
+  return buildResult(500, { message, error: (error as Error).message });
 }

@@ -1,8 +1,8 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { GetCoinCurrentPriceResult } from '../interfaces/results';
-import { returnNotFound, returnSuccess } from '../lib/utils';
-import { putSearchHistory } from '../services/search-history';
+import { returnNotFound, returnServerError, returnSuccess } from '../lib/utils';
 import { getCoinDataById } from '../services/coin-gecko';
+import { putSearchHistory } from '../services/search-history';
 import { sendEmail } from '../services/ses';
 
 const MOCKED_USER_EMAIL = 'thanchanok.likitsinsopon@gmail.com';
@@ -32,6 +32,7 @@ async function sendEmailNotification(result: GetCoinCurrentPriceResult): Promise
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+	try {
   const pathParameters  = event.pathParameters ?? {};
   const coinId = pathParameters['id'];
   const userId = event.requestContext.authorizer?.claims.email;
@@ -44,4 +45,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   await sendEmailNotification(result);
   await putSearchHistory(userId, coinId);
   return returnSuccess(result);
+	} catch (error: unknown) {
+		console.error('Error get coin current price:', error);
+		return returnServerError('Failed to get coin current price', error as Error);
+	}
 };
