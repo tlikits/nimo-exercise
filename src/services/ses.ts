@@ -1,12 +1,12 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-const SOURCE_EMAIL = 'thanchanok.lks@gmail.com';
+const SOURCE_EMAIL = 'no-reply@tlikits.com';
 const sesClient = new SESClient();
 
 
 export async function sendEmail(targetEmail: string, subject: string, bodyText: string, bodyHtml: string) {
     const params = {
-        Source: SOURCE_EMAIL, // TODO: use from variable
+        Source: SOURCE_EMAIL,
         Destination: {
             ToAddresses: [targetEmail],
         },
