@@ -4,6 +4,7 @@ module.exports = {
   entry: {
     'get-coin-current-price': './src/handlers/get-coin-current-price.ts',
     'get-search-history': './src/handlers/get-search-history.ts',
+    'sign-up': './src/handlers/sign-up.ts',
     'cognito-login': './src/handlers/cognito-login.ts',
   },
   target: 'node',

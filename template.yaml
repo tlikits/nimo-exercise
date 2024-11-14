@@ -15,6 +15,32 @@ Resources:
             UserPoolArn: !GetAtt CognitoUserPool.Arn
             IdentitySource: "method.request.header.Authorization"  # Auth token source
 
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref ApiGateway
+          StageName: Prod
+
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn:
+      - ApiGateway
+    Properties:
+      Description: Example usage plan with a monthly quota of 1000 calls and method-level throttling for /pets GET
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: Prod
+
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+
+
   GetCoinCurrentPrice:
     Type: AWS::Serverless::Function
     Properties:
@@ -76,6 +102,38 @@ Resources:
             Path: /history
             Method: GET
 
+  SignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: sign-up.handler
+      Runtime: nodejs20.x
+      Architectures:
+      - x86_64
+      CodeUri: ./dist/handlers
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoUserPool
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            Sid: CognitoUserCreate
+            Effect: Allow
+            Action:
+            - cognito-idp:AdminCreateUser
+            Resource: '*'
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: /signup
+            Auth:
+              ApiKeyRequired: true
+            Method: POST
+
+
   CognitoLoginFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -94,7 +152,7 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:
-        CognitoLoginApi:
+        Api:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGateway
@@ -165,7 +223,6 @@ Resources:
         IdToken: minutes
         RefreshToken: days
 
-
   CognitoLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -214,6 +271,6 @@ Globals:
   Api:
     Cors:
       AllowMethods: "'GET,POST,OPTIONS'"
-      AllowHeaders: "'content-type, authorization, accept'"
+      AllowHeaders: "'content-type, authorization, accept, x-api-key'"
       AllowOrigin: "'*'"
       AllowCredentials: "'true'"

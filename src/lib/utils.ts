@@ -3,7 +3,7 @@ export function buildResult(statusCode: number, body: object) {
     statusCode,
     body: JSON.stringify(body),
     headers: {
-      'Access-Control-Allow-Headers' : 'Content-Type, authorization, accept',
+      'Access-Control-Allow-Headers' : 'Content-Type, authorization, accept, x-api-key',
       'Access-Control-Allow-Origin': '*', // Allow from anywhere
       'Access-Control-Allow-Methods': 'GET', // Allow only GET request
       'Access-Control-Allow-Credentials': true
