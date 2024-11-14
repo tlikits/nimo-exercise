@@ -1,0 +1,173 @@
+openapi: "3.0.0"
+info:
+  version: 0.0.1
+  title: Nimo Exercise
+servers:
+  - url: https://uike51w7y8.execute-api.ap-southeast-2.amazonaws.com/Prod
+
+paths:
+  /login:
+    post:
+      summary: Login to get access token
+      operationId: login
+      tags:
+        - Credential Management
+      requestBody:
+        description: Username password credential
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsernamePasswordCredential"
+      responses:
+        200:
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+
+  /history:
+    get:
+      summary: Get search history of the current user
+      operationId: getSearchHistory
+      security:
+        - BearerAuth: []
+      tags:
+        - Cryptocurrency
+      parameters:
+      - in: query
+        name: nextToken
+        schema:
+          type: string
+        description: Next token (optional)
+      responses:
+        200:
+          description: A object contain the items of search history with next token (if available)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSearchHistoryResult"
+        401:
+          description: A current price of a given cryptocurrency in AUD and USD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+
+
+
+
+  /coin/{coinId}/current:
+    get:
+      summary: Get current price of a specific cryptocurrency id and send email to the user
+      operationId: getCoinCurrentPrice
+      security:
+        - BearerAuth: []
+      tags:
+        - Cryptocurrency
+      parameters:
+        - name: coinId
+          in: path
+          required: true
+          description: The id of the cryptocurrency to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A current price of a given cryptocurrency in AUD and USD
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetCurrentPriceResult"
+        401:
+          description: A current price of a given cryptocurrency in AUD and USD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: >-
+        Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+  schemas:
+    SearchHistoryItem:
+      required:
+        - coinId
+        - timestamp
+      properties:
+        coinId:
+          type: string
+        timestamp:
+          type: string
+    GetSearchHistoryResult:
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/SearchHistoryItem'
+        nextToken:
+          type: string
+
+    GetCurrentPriceResult:
+      required:
+        - id
+        - prices
+      properties:
+        id:
+          type: string
+        prices:
+          $ref: "#/components/schemas/CryptocurrencyPrices"
+    UsernamePasswordCredential:
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    LoginResult:
+      required:
+        - accessToken
+        - idToken
+        - refreshToken
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+        idToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: number
+
+    CryptocurrencyPrices:
+      required:
+        - aud
+        - usd
+      properties:
+        aud:
+          type: integer
+        usd:
+          type: integer
+
+    MessageObject:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+  responses:
+    UnauthorizedError:
+      $ref: "#/components/schemas/MessageObject"
