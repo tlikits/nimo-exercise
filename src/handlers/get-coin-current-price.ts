@@ -42,7 +42,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		}
 
 		const result = await getCoinCurrentPriceHandler(coinId);
-		await sendEmailNotification(userId, result);
+		await sendEmailNotification(userId, result).catch(err => console.error('Error while send email', err.message));
 		await putSearchHistory(userId, coinId);
 		return returnSuccess(result);
 	} catch (error: unknown) {
