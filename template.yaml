@@ -66,16 +66,31 @@ Resources:
     Properties:
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
-        - AttributeName: pk
+        - AttributeName: pk # TODO: change to userId
           AttributeType: S
-        - AttributeName: sk
+        - AttributeName: sk # TODO: change to coinId
+          AttributeType: S
+        - AttributeName: timestamp
           AttributeType: S
 
       KeySchema:
-        - AttributeName: pk
+        - AttributeName: pk # TODO: change to userId
           KeyType: HASH
-        - AttributeName: sk
+        - AttributeName: sk # TODO: change to coinId
           KeyType: RANGE
+
+      LocalSecondaryIndexes:
+        - IndexName: userId-timestamp-index
+          KeySchema:
+            - AttributeName: pk # TODO: change to userId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - sk # TODO: change to coinId
+
 
       TimeToLiveSpecification:
         AttributeName: "ttl"

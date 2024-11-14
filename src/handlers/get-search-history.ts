@@ -1,24 +1,11 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { GetSearchHistoryResult } from '../interfaces/results';
 import { returnSuccess } from '../lib/utils';
+import { querySearchHistory } from '../services/search-history';
 
-function getSearchHistory(): GetSearchHistoryResult {
-  // TODO: implement the logic to retrieve data from dynamodb
-  return {
-    items: [
-      {
-        coinId: 'bitcoin',
-        timestamp: '2024-11-12T19:38:18.572Z'
-      },
-      {
-        coinId: 'etherium',
-        timestamp: '2024-11-12T19:50:18.572Z'
-      }
-    ],
-  };
-}
+const MOCKED_USER_ID = 'tlikits';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  const result = getSearchHistory();
+  const userId = MOCKED_USER_ID; // TODO: retrieve user id
+  const result = await querySearchHistory(userId);
   return returnSuccess(result);
 };
