@@ -44,10 +44,11 @@ Resources:
   GetCoinCurrentPrice:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: dist/handlers/get-coin-current-price.handler
+      Handler: get-coin-current-price.handler
       Runtime: nodejs20.x
       Architectures:
       - x86_64
+      CodeUri: ./dist/handlers
       MemorySize: 128
       Timeout: 100
       Description: Get current price of a specific cryptocurrency that indicate on path parameter and receive an email about the result
@@ -79,10 +80,11 @@ Resources:
   GetSearchHistory:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: dist/handlers/get-search-history.handler
+      Handler: get-search-history.handler
       Runtime: nodejs20.x
       Architectures:
       - x86_64
+      CodeUri: ./dist/handlers
       MemorySize: 128
       Timeout: 100
       Description: Get cryptocurrency search history
